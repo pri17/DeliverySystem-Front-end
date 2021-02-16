@@ -3,80 +3,81 @@ import { useTable } from "react-table";
 import axios from "axios";
 import styles from "./Depots.module.css";
 import DepotTable from "../components/DepotTable";
-import { Link } from "react-router-dom";
 
-function Table({ data }) {
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: "ID",
-        accessor: "id",
-      },
-      {
-        Header: "whs_code",
-        accessor: "whs_code",
-      },
-      {
-        Header: "whs_name",
-        accessor: "whs_name",
-      },
-      {
-        Header: "lng",
-        accessor: "lng",
-      },
-      {
-        Header: "lat",
-        accessor: "lat",
-      },
-      {
-        Header: "Created At",
-        accessor: "created_at",
-      },
-      {
-        Header: "Updated At",
-        accessor: "updated_at",
-      },
-    ],
-    []
-  );
-  // Use the state and functions returned from useTable to build your UI
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({
-    columns,
-    data,
-  });
+const DEPOT_LIST_URL = "http://localhost:8080/depots";
 
-  return (
-    <table {...getTableProps()}>
-      <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render("Header")}</th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map((row, i) => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map((cell) => {
-                return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
-              })}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
-}
+// function Table({ data }) {
+//   const columns = React.useMemo(
+//     () => [
+//       {
+//         Header: "ID",
+//         accessor: "id",
+//       },
+//       {
+//         Header: "whs_code",
+//         accessor: "whs_code",
+//       },
+//       {
+//         Header: "whs_name",
+//         accessor: "whs_name",
+//       },
+//       {
+//         Header: "lng",
+//         accessor: "lng",
+//       },
+//       {
+//         Header: "lat",
+//         accessor: "lat",
+//       },
+//       {
+//         Header: "Created At",
+//         accessor: "created_at",
+//       },
+//       {
+//         Header: "Updated At",
+//         accessor: "updated_at",
+//       },
+//     ],
+//     []
+//   );
+//   // Use the state and functions returned from useTable to build your UI
+//   const {
+//     getTableProps,
+//     getTableBodyProps,
+//     headerGroups,
+//     rows,
+//     prepareRow,
+//   } = useTable({
+//     columns,
+//     data,
+//   });
+
+//   return (
+//     <table {...getTableProps()}>
+//       <thead>
+//         {headerGroups.map((headerGroup) => (
+//           <tr {...headerGroup.getHeaderGroupProps()}>
+//             {headerGroup.headers.map((column) => (
+//               <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+//             ))}
+//           </tr>
+//         ))}
+//       </thead>
+//       <tbody {...getTableBodyProps()}>
+//         {rows.map((row, i) => {
+//           prepareRow(row);
+//           return (
+//             <tr {...row.getRowProps()}>
+//               {row.cells.map((cell) => {
+//                 return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
+//               })}
+//             </tr>
+//           );
+//         })}
+//       </tbody>
+//     </table>
+//   );
+// }
 
 class Depots extends Component {
   state = {
@@ -85,7 +86,7 @@ class Depots extends Component {
 
   componentDidMount() {
     axios
-      .get("http://localhost:8080/depots", {
+      .get(DEPOT_LIST_URL, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
