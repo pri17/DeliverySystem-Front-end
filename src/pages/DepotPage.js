@@ -25,7 +25,7 @@ class DepotPage extends Component {
       .get(DEPOT_SINGLE_RUL + id, {
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
+          "Content-Type": "application/json;charset=utf-8",
         },
       })
       .then((res) => {
@@ -52,22 +52,29 @@ class DepotPage extends Component {
   };
 
   handleSubmit = () => {
+    // const params = new URLSearchParams();
+    // params.append("whs_name", this.state.whs_name);
+    // params.append("whs_code", this.state.whs_code);
+    // params.append("lat", this.state.lat);
+    // params.append("lng", this.state.lng);
+
+    //Alternatively
+    const params = {
+      whs_name: this.state.whs_name,
+      whs_code: this.state.whs_code,
+      lat: this.state.lat,
+      lng: this.state.lng,
+    };
+
     axios
-      .put(DEPOT_SINGLE_RUL + this.state.id, {
+      .post(DEPOT_SINGLE_RUL + this.state.id, params, {
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        data: {
-          whs_name: this.state.whs_name,
-          whs_code: this.state.whs_code,
-          lat: this.state.lat,
-          lng: this.state.lng,
+          "Content-Type": "application/json;charset=utf-8",
         },
       })
-      .then((res) => {
-        //console.log(res.data);
-      });
+      .then((res) => {})
+      .catch((error) => {});
   };
 
   render() {
