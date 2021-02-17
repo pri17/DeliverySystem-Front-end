@@ -8,7 +8,7 @@ const DepotTable = ({ data, headers, props }) => {
 
   const handleClick = (id) => {
     // console.log(id);
-    props.history.push("/depotPage/" + id);
+    props.history.push("/depots/" + id);
   };
 
   const bodyData = data.map((record) => {

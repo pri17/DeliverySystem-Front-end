@@ -1,10 +1,7 @@
 import React, { Component } from "react";
-import { useTable } from "react-table";
 import axios from "axios";
 import styles from "./Depots.module.css";
 import DepotTable from "../components/DepotTable";
-
-const DEPOT_LIST_URL = "http://localhost:8080/depots";
 
 // function Table({ data }) {
 //   const columns = React.useMemo(
@@ -86,7 +83,7 @@ class Depots extends Component {
 
   componentDidMount() {
     axios
-      .get(DEPOT_LIST_URL, {
+      .get(process.env.DEPOT_LIST_URL, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
