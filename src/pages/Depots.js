@@ -83,7 +83,7 @@ class Depots extends Component {
 
   componentDidMount() {
     axios
-      .get(process.env.DEPOT_LIST_URL, {
+      .get(process.env.REACT_APP_DEPOT_LIST_URL, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",

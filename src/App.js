@@ -11,7 +11,6 @@ function App() {
       <div className="App">
         <Route path="/depots" component={Depots}></Route>
         <Route path="/depots/:id" component={DepotPage}></Route>
-        <Route path="/delivery-types" component={DeliveryTypes}></Route>
       </div>
     </BrowserRouter>
   );
