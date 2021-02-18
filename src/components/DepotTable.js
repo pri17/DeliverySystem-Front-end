@@ -7,7 +7,7 @@ const DepotTable = ({ data, headers, props }) => {
   });
 
   const handleClick = (id) => {
-    // console.log(id);
+    // console.log(props);
     props.history.push("/depots/" + id);
   };
 

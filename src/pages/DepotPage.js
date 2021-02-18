@@ -1,8 +1,7 @@
 import axios from "axios";
 import React, { Component } from "react";
 import styles from "./DepotPage.module.css";
-
-const DEPOT_SINGLE_RUL = "http://localhost:8080/depot/";
+import Popup from "../components/Popup";
 
 class DepotPage extends Component {
   state = {
@@ -12,6 +11,8 @@ class DepotPage extends Component {
     lng: null,
     isLoading: false,
     id: null,
+    showPopup: false,
+    message: null,
   };
 
   componentDidMount() {
@@ -22,7 +23,7 @@ class DepotPage extends Component {
       isLoading: true,
     });
     axios
-      .get(DEPOT_SINGLE_RUL + id, {
+      .get(process.env.REACT_APP_DEPOT_GET_URL + id, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json;charset=utf-8",
@@ -37,7 +38,7 @@ class DepotPage extends Component {
           id: res.data.id,
           isLoading: false,
         });
-        //console.log(res.data);
+        //console.log(this.state);
       });
   }
 
@@ -49,6 +50,11 @@ class DepotPage extends Component {
     if (event.target.name === "lat") this.setState({ lat: event.target.value });
     if (event.target.name === "lng") this.setState({ lng: event.target.value });
     //console.log(this.state);
+  };
+
+  hideModal = () => {
+    this.setState({ showPopup: false });
+    this.props.history.push("/depots");
   };
 
   handleSubmit = () => {
@@ -67,14 +73,18 @@ class DepotPage extends Component {
     };
 
     axios
-      .post(DEPOT_SINGLE_RUL + this.state.id, params, {
+      .post(process.env.REACT_APP_DEPOT_GET_URL + this.state.id, params, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json;charset=utf-8",
         },
       })
-      .then((res) => {})
-      .catch((error) => {});
+      .then((res) => {
+        this.setState({ showPopup: true, message: "Update Sucess!" });
+      })
+      .catch((error) => {
+        this.setState({ showPopup: true, message: "Update Failed!" });
+      });
   };
 
   render() {
@@ -137,6 +147,11 @@ class DepotPage extends Component {
             <button onClick={this.handleSubmit}>Save Change</button>
           </div>
         </div>
+        <Popup
+          show={this.state.showPopup}
+          handleClose={this.hideModal}
+          message={this.state.message}
+        ></Popup>
       </div>
     );
   }
