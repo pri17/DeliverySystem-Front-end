@@ -8,7 +8,7 @@ const DeliveryTable = ({ data, headers, props }) => {
 
   const handleClick = (id) => {
     // console.log(props);
-    // props.history.push("/depots/" + id);
+    props.history.push("/deliveryTypes/" + id);
   };
 
   const bodyData = data.map((record) => {
