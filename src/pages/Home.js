@@ -19,6 +19,11 @@ const Home = () => {
                 Delivery Types
               </Link>
             </li>
+            <li className={styles.listStyle}>
+              <Link to="/products" className={styles.links}>
+                Products
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

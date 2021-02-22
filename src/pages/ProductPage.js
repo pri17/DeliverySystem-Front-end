@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import axios from "axios";
 import Popup from "../components/Popup";
-import styles from "./DTypePage.module.css";
+import styles from "./ProductPage.module.css";
 
-class DTypePage extends Component {
+class ProductPage extends Component {
   state = {
     name: null,
-    enabled: null,
+    delivery_multiplier: null,
     isLoading: false,
     id: null,
     showPopup: false,
@@ -21,7 +21,7 @@ class DTypePage extends Component {
       isLoading: true,
     });
     axios
-      .get(process.env.REACT_APP_DELIVERYTYPE_LIST_URL + "/" + id, {
+      .get(process.env.REACT_APP_PRODUCTS_LIST_URL + "/" + id, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json;charset=utf-8",
@@ -30,36 +30,34 @@ class DTypePage extends Component {
       .then((res) => {
         this.setState({
           name: res.data.name,
-          enabled: res.data.enabled,
+          delivery_multiplier: res.data.delivery_multiplier,
           id: res.data.id,
           isLoading: false,
         });
-        //console.log(this.state);
       });
   }
 
   handleChange = (event) => {
     if (event.target.name === "name")
       this.setState({ name: event.target.value });
-    if (event.target.name === "enabled")
-      this.setState({ enabled: event.target.checked });
-    //console.log(event.target.checked);
+    if (event.target.name === "delivery_multiplier")
+      this.setState({ delivery_multiplier: event.target.value });
   };
 
   hideModal = () => {
     this.setState({ showPopup: false });
-    this.props.history.push("/deliveryTypes");
+    this.props.history.push("/products");
   };
 
   handleSubmit = () => {
     const params = {
       name: this.state.name,
-      enabled: this.state.enabled ? "1" : "0",
+      delivery_multiplier: this.state.delivery_multiplier,
     };
 
     axios
       .post(
-        process.env.REACT_APP_DELIVERYTYPE_LIST_URL + "/" + this.state.id,
+        process.env.REACT_APP_PRODUCTS_LIST_URL + "/" + this.state.id,
         params,
         {
           headers: {
@@ -82,14 +80,14 @@ class DTypePage extends Component {
     }
     return (
       <div className={styles.container}>
-        <div className={styles.title}>Delivery Type Page</div>
+        <div className={styles.title}>Product Page</div>
         <div className={styles.content}>
           {!this.state.name ? null : (
             <table className={styles.depotTable}>
               <thead>
                 <tr>
-                  <th>Delivery Type</th>
-                  <th>Is Enabled</th>
+                  <th>Product Name</th>
+                  <th>Delivery Multiplier</th>
                 </tr>
               </thead>
               <tbody>
@@ -104,9 +102,9 @@ class DTypePage extends Component {
                   </td>
                   <td>
                     <input
-                      defaultChecked={this.state.enabled}
-                      type="checkbox"
-                      name="enabled"
+                      value={this.state.delivery_multiplier}
+                      type="text"
+                      name="delivery_multiplier"
                       onChange={(e) => this.handleChange(e)}
                     />
                   </td>
@@ -128,4 +126,4 @@ class DTypePage extends Component {
   }
 }
 
-export default DTypePage;
+export default ProductPage;
