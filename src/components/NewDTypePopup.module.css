@@ -1,0 +1,19 @@
+.displayBlock {
+  display: block;
+}
+
+.displayNone {
+  display: none;
+}
+
+.modal {
+  z-index: 1000000002;
+}
+
+.modalBody {
+  padding: 2% 5%;
+}
+
+.modalBody {
+  padding: 2% 5%;
+}
