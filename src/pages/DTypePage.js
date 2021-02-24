@@ -4,6 +4,8 @@ import Popup from "../components/Popup";
 import styles from "./DTypePage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 class DTypePage extends Component {
   state = {
@@ -14,6 +16,7 @@ class DTypePage extends Component {
     showPopup: false,
     message: null,
     postcode_list: null,
+    modalShow: false,
   };
 
   componentDidMount() {
@@ -63,7 +66,7 @@ class DTypePage extends Component {
     //console.log(event.target.checked);
   };
 
-  hideModal = () => {
+  hidePopup = () => {
     this.setState({ showPopup: false });
     this.props.history.push("/deliveryTypes");
   };
@@ -93,7 +96,12 @@ class DTypePage extends Component {
       });
   };
 
-  addNewPopup = () => {};
+  addNewPopup = () => {
+    this.setState({
+      modalShow: true,
+    });
+    console.log("Modal");
+  };
 
   render() {
     if (this.state.isLoading) {
@@ -150,7 +158,7 @@ class DTypePage extends Component {
         </div>
         <Popup
           show={this.state.showPopup}
-          handleClose={this.hideModal}
+          handleClose={this.hidePopup}
           message={this.state.message}
         ></Popup>
 
@@ -172,6 +180,20 @@ class DTypePage extends Component {
             />
           )}
         </div>
+
+        <Modal show={this.state.modalShow} className={styles.modal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Add New PostCode</Modal.Title>
+          </Modal.Header>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.modalHide}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={this.sendTradeAccount}>
+              Add
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }

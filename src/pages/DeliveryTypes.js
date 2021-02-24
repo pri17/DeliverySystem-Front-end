@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
 import styles from "./DeliveryTypes.module.css";
-import NewDTypePopup from "../components/NewDTypePopup";
 
 class DeliveryTypes extends Component {
   state = {

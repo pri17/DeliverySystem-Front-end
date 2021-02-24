@@ -57,3 +57,11 @@ td {
   float: right;
   display: inline;
 }
+
+.modal {
+  z-index: 1000000002;
+}
+
+.modalBody {
+  padding: 2% 5%;
+}
