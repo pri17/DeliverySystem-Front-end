@@ -11,15 +11,16 @@ class DTypePage extends Component {
     id: null,
     showPopup: false,
     message: null,
+    postcode_list: null,
   };
 
   componentDidMount() {
     let id = this.props.match.params.id;
-    //console.log("This depot id is " + id);
 
     this.setState({
       isLoading: true,
     });
+
     axios
       .get(process.env.REACT_APP_DELIVERYTYPE_LIST_URL + "/" + id, {
         headers: {
@@ -34,7 +35,22 @@ class DTypePage extends Component {
           id: res.data.id,
           isLoading: false,
         });
-        //console.log(this.state);
+      });
+
+    //get the postcode list by delivery type id
+    axios
+      .get(process.env.REACT_APP_POSTCODE_BYTYPE_URL + id, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      })
+      .then((res) => {
+        this.setState({
+          isLoading: false,
+          postcode_list: res.data,
+        });
+        console.log(this.state.postcode_list);
       });
   }
 
@@ -80,6 +96,15 @@ class DTypePage extends Component {
     if (this.state.isLoading) {
       return <div>Loading....</div>;
     }
+
+    const postcode_headers = [
+      "ID",
+      "Postcode Prefix",
+      "Min Price",
+      "Created At",
+      "Updated At",
+    ];
+
     return (
       <div className={styles.container}>
         <div className={styles.title}>Delivery Type Page</div>
@@ -123,9 +148,49 @@ class DTypePage extends Component {
           handleClose={this.hideModal}
           message={this.state.message}
         ></Popup>
+
+        <div className={styles.PostCodeList}>
+          <div className={styles.title2}>PostCodes List</div>
+          {!this.state.postcode_list ? null : (
+            <PostCodeTable
+              data={this.state.postcode_list}
+              headers={postcode_headers}
+            />
+          )}
+        </div>
       </div>
     );
   }
 }
+
+const PostCodeTable = ({ data, headers }) => {
+  const tableHeaders = headers.map((head) => {
+    return <th key={head}>{head}</th>;
+  });
+
+  console.log(data);
+  const bodyData = data.map((record) => {
+    return (
+      <tr key={record.id}>
+        <td>{record.id}</td>
+        <td>{record.postcode_prefix}</td>
+        <td>{record.min_price}</td>
+        <td>{record.created_at}</td>
+        <td>{record.updated_at}</td>
+      </tr>
+    );
+  });
+
+  return (
+    <div className={styles.content}>
+      <table className={styles.table}>
+        <thead>
+          <tr>{tableHeaders}</tr>
+        </thead>
+        <tbody>{bodyData}</tbody>
+      </table>
+    </div>
+  );
+};
 
 export default DTypePage;

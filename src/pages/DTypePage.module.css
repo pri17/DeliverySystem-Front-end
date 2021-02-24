@@ -19,9 +19,18 @@ td {
 .depotTable {
   border-collapse: collapse;
   margin: 30px 0;
-  display: -webkit-inline-box;
+  display: inline-table;
   font-size: 0.9em;
   font-family: sans-serif;
   min-width: 400px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.PostCodeList {
+  display: inline-table;
+}
+
+.title2 {
+  font-size: 20px;
+  padding: 20px 20px;
 }
