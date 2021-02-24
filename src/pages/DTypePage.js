@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import axios from "axios";
 import Popup from "../components/Popup";
 import styles from "./DTypePage.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 class DTypePage extends Component {
   state = {
@@ -50,7 +52,6 @@ class DTypePage extends Component {
           isLoading: false,
           postcode_list: res.data,
         });
-        console.log(this.state.postcode_list);
       });
   }
 
@@ -91,6 +92,8 @@ class DTypePage extends Component {
         this.setState({ showPopup: true, message: "Update Failed!" });
       });
   };
+
+  addNewPopup = () => {};
 
   render() {
     if (this.state.isLoading) {
@@ -140,7 +143,9 @@ class DTypePage extends Component {
             </table>
           )}
           <div>
-            <button onClick={this.handleSubmit}>Save Change</button>
+            <button onClick={this.handleSubmit} className={styles.saveBtn}>
+              Save Change
+            </button>
           </div>
         </div>
         <Popup
@@ -150,7 +155,16 @@ class DTypePage extends Component {
         ></Popup>
 
         <div className={styles.PostCodeList}>
-          <div className={styles.title2}>PostCodes List</div>
+          <div className={styles.title2}>
+            PostCodes List
+            <FontAwesomeIcon
+              icon={faPlus}
+              size="lg"
+              onClick={this.addNewPopup}
+              className={styles.plusBtn}
+            />
+          </div>
+
           {!this.state.postcode_list ? null : (
             <PostCodeTable
               data={this.state.postcode_list}
@@ -168,7 +182,6 @@ const PostCodeTable = ({ data, headers }) => {
     return <th key={head}>{head}</th>;
   });
 
-  console.log(data);
   const bodyData = data.map((record) => {
     return (
       <tr key={record.id}>
