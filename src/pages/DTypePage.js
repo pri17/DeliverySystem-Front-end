@@ -6,6 +6,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import Col from "react-bootstrap/Col";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 class DTypePage extends Component {
   state = {
@@ -17,6 +20,12 @@ class DTypePage extends Component {
     message: null,
     postcode_list: null,
     modalShow: false,
+    backURL: "",
+    newPostcode: {
+      postcode_prefix: null,
+      min_price: null,
+      delivery_type_id: null,
+    },
   };
 
   componentDidMount() {
@@ -68,7 +77,11 @@ class DTypePage extends Component {
 
   hidePopup = () => {
     this.setState({ showPopup: false });
-    this.props.history.push("/deliveryTypes");
+    if (this.state.backURL == "deliveryTypes")
+      this.props.history.push("/" + this.state.backURL);
+    else {
+      window.location.reload();
+    }
   };
 
   handleSubmit = () => {
@@ -89,10 +102,18 @@ class DTypePage extends Component {
         }
       )
       .then((res) => {
-        this.setState({ showPopup: true, message: "Update Sucess!" });
+        this.setState({
+          showPopup: true,
+          message: "Update Sucess!",
+          backURL: "deliveryTypes",
+        });
       })
       .catch((error) => {
-        this.setState({ showPopup: true, message: "Update Failed!" });
+        this.setState({
+          showPopup: true,
+          message: "Update Failed!",
+          backURL: "deliveryTypes",
+        });
       });
   };
 
@@ -100,7 +121,64 @@ class DTypePage extends Component {
     this.setState({
       modalShow: true,
     });
-    console.log("Modal");
+  };
+
+  modalHide = () => {
+    this.setState({
+      modalShow: false,
+    });
+  };
+
+  inputChange = (event) => {
+    let value = event.target.value;
+    let name = event.target.id;
+
+    if (name === "postcode_prefix")
+      this.setState({
+        newPostcode: {
+          postcode_prefix: value,
+          min_price: this.state.newPostcode.min_price,
+          delivery_type_id: this.state.id,
+        },
+      });
+    if (name === "min_price")
+      this.setState({
+        newPostcode: {
+          postcode_prefix: this.state.newPostcode.postcode_prefix,
+          min_price: value,
+          delivery_type_id: this.state.id,
+        },
+      });
+  };
+
+  addNewPostcode = () => {
+    const params = {
+      postcode_prefix: this.state.newPostcode.postcode_prefix,
+      min_price: this.state.newPostcode.min_price,
+      delivery_type_id: this.state.newPostcode.delivery_type_id,
+    };
+
+    axios
+      .post(process.env.REACT_APP_POSTCODE_ADD_URL, params, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      })
+      .then((res) => {
+        this.setState({
+          showPopup: true,
+          message: "Add Sucess!",
+          modalShow: false,
+        });
+      })
+      .catch((error) => {
+        this.setState({
+          showPopup: true,
+          message: "Add Failed!",
+          modalShow: false,
+        });
+      });
   };
 
   render() {
@@ -181,15 +259,58 @@ class DTypePage extends Component {
           )}
         </div>
 
-        <Modal show={this.state.modalShow} className={styles.modal}>
+        <Modal
+          show={this.state.modalShow}
+          className={styles.modal}
+          onHide={this.modalHide}
+        >
           <Modal.Header closeButton>
             <Modal.Title>Add New PostCode</Modal.Title>
           </Modal.Header>
+
+          <Modal.Body className={styles.modalBody}>
+            <Form>
+              <Form.Row>
+                <Form.Group as={Col} controlId="postcode_prefix">
+                  <Form.Label>
+                    Postcode Prefix:
+                    <span className={styles.formRed}>(required)</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Postcode Prefix"
+                    onChange={this.inputChange}
+                    value={this.state.postcode_prefix}
+                    className={
+                      this.state.postcode_prefix ? styles.formError : null
+                    }
+                  />
+                  <div className={styles.error}>
+                    {this.state.postcode_prefix}
+                  </div>
+                </Form.Group>
+              </Form.Row>
+              <Form.Row>
+                <Form.Group as={Col} controlId="min_price">
+                  <Form.Label>Minimum Price:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter minimum price"
+                    onChange={this.inputChange}
+                    value={this.state.min_price}
+                    className={this.state.min_price ? styles.formError : null}
+                  />
+                  <div className={styles.error}>{this.state.min_price}</div>
+                </Form.Group>
+              </Form.Row>
+            </Form>
+          </Modal.Body>
+
           <Modal.Footer>
             <Button variant="secondary" onClick={this.modalHide}>
               Close
             </Button>
-            <Button variant="primary" onClick={this.sendTradeAccount}>
+            <Button variant="primary" onClick={this.addNewPostcode}>
               Add
             </Button>
           </Modal.Footer>
