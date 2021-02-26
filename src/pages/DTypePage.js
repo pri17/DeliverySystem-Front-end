@@ -1,14 +1,12 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import axios from "axios";
 import Popup from "../components/Popup";
 import styles from "./DTypePage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
-import Col from "react-bootstrap/Col";
 import "bootstrap/dist/css/bootstrap.min.css";
+import DeliveryTypeModal from "../components/DeliveryTypeModal";
 
 class DTypePage extends Component {
   state = {
@@ -21,11 +19,6 @@ class DTypePage extends Component {
     postcode_list: null,
     modalShow: false,
     backURL: "",
-    newPostcode: {
-      postcode_prefix: null,
-      min_price: null,
-      delivery_type_id: null,
-    },
   };
 
   componentDidMount() {
@@ -115,58 +108,6 @@ class DTypePage extends Component {
     });
   };
 
-  inputChange = (event) => {
-    let value = event.target.value;
-    let name = event.target.id;
-
-    if (name === "postcode_prefix")
-      this.setState({
-        newPostcode: {
-          postcode_prefix: value,
-          min_price: this.state.newPostcode.min_price,
-          delivery_type_id: this.state.id,
-        },
-      });
-    if (name === "min_price")
-      this.setState({
-        newPostcode: {
-          postcode_prefix: this.state.newPostcode.postcode_prefix,
-          min_price: value,
-          delivery_type_id: this.state.id,
-        },
-      });
-  };
-
-  addNewPostcode = () => {
-    const params = {
-      postcode_prefix: this.state.newPostcode.postcode_prefix,
-      min_price: this.state.newPostcode.min_price,
-      delivery_type_id: this.state.newPostcode.delivery_type_id,
-    };
-
-    axios
-      .post(process.env.REACT_APP_POSTCODE_ADD_URL, params, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json;charset=utf-8",
-        },
-      })
-      .then((res) => {
-        this.setState({
-          showPopup: true,
-          message: "Add Sucess!",
-          modalShow: false,
-        });
-      })
-      .catch((error) => {
-        this.setState({
-          showPopup: true,
-          message: "Add Failed!",
-          modalShow: false,
-        });
-      });
-  };
-
   render() {
     if (this.state.isLoading) {
       return <div>Loading....</div>;
@@ -245,62 +186,16 @@ class DTypePage extends Component {
           )}
         </div>
 
-        <Modal
-          show={this.state.modalShow}
-          className={styles.modal}
-          onHide={this.modalHide}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Add New PostCode</Modal.Title>
-          </Modal.Header>
-
-          <Modal.Body className={styles.modalBody}>
-            <Form>
-              <Form.Row>
-                <Form.Group as={Col} controlId="postcode_prefix">
-                  <Form.Label>
-                    Postcode Prefix:
-                    <span className={styles.formRed}>(required)</span>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter Postcode Prefix"
-                    onChange={this.inputChange}
-                    value={this.state.postcode_prefix}
-                    className={
-                      this.state.postcode_prefix ? styles.formError : null
-                    }
-                  />
-                  <div className={styles.error}>
-                    {this.state.postcode_prefix}
-                  </div>
-                </Form.Group>
-              </Form.Row>
-              <Form.Row>
-                <Form.Group as={Col} controlId="min_price">
-                  <Form.Label>Minimum Price:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter minimum price"
-                    onChange={this.inputChange}
-                    value={this.state.min_price}
-                    className={this.state.min_price ? styles.formError : null}
-                  />
-                  <div className={styles.error}>{this.state.min_price}</div>
-                </Form.Group>
-              </Form.Row>
-            </Form>
-          </Modal.Body>
-
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.modalHide}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={this.addNewPostcode}>
-              Add
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <DeliveryTypeModal
+          showup={this.state.modalShow}
+          hideup={this.modalHide}
+          data={{
+            delivery_type_id: this.state.id,
+            postcode_prefix: null,
+            min_price: null,
+          }}
+          isEdit={false}
+        />
       </div>
     );
   }
@@ -311,6 +206,14 @@ const PostCodeTable = ({ data, headers }) => {
     return <th key={head}>{head}</th>;
   });
 
+  const [showup, setShowup] = useState(false);
+
+  const modalHide = () => {
+    setShowup({
+      showup: false,
+    });
+  };
+
   const bodyData = data.map((record) => {
     return (
       <tr key={record.id}>
@@ -319,6 +222,28 @@ const PostCodeTable = ({ data, headers }) => {
         <td>{record.min_price}</td>
         <td>{record.created_at}</td>
         <td>{record.updated_at}</td>
+        <td>
+          <Button
+            value={record.id}
+            onClick={() =>
+              setShowup({
+                showup: true,
+              })
+            }
+          >
+            Edit
+          </Button>
+        </td>
+        <DeliveryTypeModal
+          showup={showup}
+          hideup={modalHide}
+          data={{
+            delivery_type_id: record.id,
+            postcode_prefix: record.postcode_prefix,
+            min_price: record.min_price,
+          }}
+          isEdit={true}
+        />
       </tr>
     );
   });
