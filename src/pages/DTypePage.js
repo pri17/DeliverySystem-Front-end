@@ -48,21 +48,7 @@ class DTypePage extends Component {
           enabled: res.data.enabled,
           id: res.data.id,
           isLoading: false,
-        });
-      });
-
-    //get the postcode list by delivery type id
-    axios
-      .get(process.env.REACT_APP_POSTCODE_BYTYPE_URL + id, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json;charset=utf-8",
-        },
-      })
-      .then((res) => {
-        this.setState({
-          isLoading: false,
-          postcode_list: res.data,
+          postcode_list: res.data.deliveryPostsCodes,
         });
       });
   }
