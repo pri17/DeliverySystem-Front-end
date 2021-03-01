@@ -29,11 +29,11 @@ class DeliveryTypeModal extends Component {
   };
 
   //get the delivery type id
-  componentDidMount() {
-    this.setState({
-      id: this.props.data.delivery_type_id,
-    });
-  }
+  // componentDidMount() {
+  //   this.setState({
+  //     id: this.props.data.delivery_type_id,
+  //   });
+  // }
 
   hidePopup = () => {
     this.setState({ showPopup: false });
@@ -49,13 +49,13 @@ class DeliveryTypeModal extends Component {
       this.setState({
         postcode_prefix: value,
         min_price: this.state.min_price,
-        delivery_type_id: this.state.id,
+        delivery_type_id: this.props.data.delivery_type_id,
       });
     if (name === "min_price")
       this.setState({
         postcode_prefix: this.state.postcode_prefix,
         min_price: value,
-        delivery_type_id: this.state.id,
+        delivery_type_id: this.props.data.delivery_type_id,
       });
   };
 
@@ -95,7 +95,6 @@ class DeliveryTypeModal extends Component {
           },
         })
         .then((res) => {
-          this.props.hideup(); //hide modal when add success!
           this.setState({
             showPopup: true,
             message: "Add Sucess!",
@@ -103,13 +102,15 @@ class DeliveryTypeModal extends Component {
           });
         })
         .catch((error) => {
-          this.props.hideup();
           this.setState({
             showPopup: true,
             message: "Add Failed!",
             backURL: "deliveryTypes",
           });
         });
+      this.setState({ postcode_prefix: null, min_price: null }, () => {
+        this.props.hideup();
+      });
     }
   };
 

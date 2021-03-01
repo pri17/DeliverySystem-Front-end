@@ -201,20 +201,29 @@ class DTypePage extends Component {
   }
 }
 
-const PostCodeTable = ({ data, headers }) => {
-  const tableHeaders = headers.map((head) => {
+function PostCodeTable(props) {
+  const tableHeaders = props.headers.map((head) => {
     return <th key={head}>{head}</th>;
   });
 
   const [showup, setShowup] = useState(false);
 
   const modalHide = () => {
-    setShowup({
-      showup: false,
-    });
+    console.log("hide");
+    setShowup({ showup: false });
   };
 
-  const bodyData = data.map((record) => {
+  const deletePostcode = (id) => {
+    axios.delete(process.env.REACT_APP_POSTCODE_ADD_URL + "/" + id, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json;charset=utf-8",
+      },
+    });
+    window.location.reload();
+  };
+
+  const bodyData = props.data.map((record) => {
     return (
       <tr key={record.id}>
         <td>{record.id}</td>
@@ -223,8 +232,7 @@ const PostCodeTable = ({ data, headers }) => {
         <td>{record.created_at}</td>
         <td>{record.updated_at}</td>
         <td>
-          <Button
-            value={record.id}
+          <button
             onClick={() =>
               setShowup({
                 showup: true,
@@ -232,21 +240,12 @@ const PostCodeTable = ({ data, headers }) => {
             }
           >
             Edit
-          </Button>
+          </button>
         </td>
         <td>
-          <Button value={record.id}>Delete</Button>
+          <button onClick={() => deletePostcode(record.id)}>Delete</button>
         </td>
-        <DeliveryTypeModal
-          showup={showup}
-          hideup={modalHide}
-          data={{
-            delivery_type_id: record.id,
-            postcode_prefix: record.postcode_prefix,
-            min_price: record.min_price,
-          }}
-          isEdit={true}
-        />
+        <DeliveryTypeModal showup={showup} hideup={modalHide} isEdit={true} />
       </tr>
     );
   });
@@ -261,6 +260,6 @@ const PostCodeTable = ({ data, headers }) => {
       </table>
     </div>
   );
-};
+}
 
 export default DTypePage;
