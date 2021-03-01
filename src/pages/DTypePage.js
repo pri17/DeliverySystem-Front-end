@@ -234,6 +234,9 @@ const PostCodeTable = ({ data, headers }) => {
             Edit
           </Button>
         </td>
+        <td>
+          <Button value={record.id}>Delete</Button>
+        </td>
         <DeliveryTypeModal
           showup={showup}
           hideup={modalHide}
