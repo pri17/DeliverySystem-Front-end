@@ -159,6 +159,7 @@ class DTypePage extends Component {
             <button onClick={this.handleSubmit} className={styles.saveBtn}>
               Save Change
             </button>
+            <button className={styles.deleteBtn}>Delete Type</button>
           </div>
         </div>
         <Popup
@@ -208,11 +209,6 @@ function PostCodeTable(props) {
 
   const [showup, setShowup] = useState(false);
 
-  const modalHide = () => {
-    console.log("hide");
-    setShowup({ showup: false });
-  };
-
   const deletePostcode = (id) => {
     axios.delete(process.env.REACT_APP_POSTCODE_ADD_URL + "/" + id, {
       headers: {
@@ -245,7 +241,13 @@ function PostCodeTable(props) {
         <td>
           <button onClick={() => deletePostcode(record.id)}>Delete</button>
         </td>
-        <DeliveryTypeModal showup={showup} hideup={modalHide} isEdit={true} />
+        <DeliveryTypeModal
+          showup={showup}
+          hideup={() => {
+            setShowup({ showup: false });
+          }}
+          isEdit={true}
+        />
       </tr>
     );
   });
