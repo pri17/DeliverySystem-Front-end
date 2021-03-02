@@ -59,7 +59,7 @@ class DTypePage extends Component {
     if (this.state.backURL == "deliveryTypes")
       this.props.history.push("/" + this.state.backURL);
     else {
-      window.location.reload();
+      this.componentDidMount();
     }
   };
 
@@ -223,6 +223,10 @@ function PostCodeTable(props) {
   });
 
   const [showup, setShowup] = useState(false);
+  const [dtid, setDtid] = useState(null);
+  const [pf, setPf] = useState(null);
+  const [min, setMin] = useState(null);
+  const [id, setId] = useState(null);
 
   const deletePostcode = (id) => {
     axios.delete(process.env.REACT_APP_POSTCODE_ADD_URL + "/" + id, {
@@ -244,11 +248,13 @@ function PostCodeTable(props) {
         <td>{record.updated_at}</td>
         <td>
           <button
-            onClick={() =>
-              setShowup({
-                showup: true,
-              })
-            }
+            onClick={() => {
+              setDtid(record.delivery_type_id);
+              setId(record.id);
+              setPf(record.postcode_prefix);
+              setMin(record.min_price);
+              setShowup(true);
+            }}
           >
             Edit
           </button>
@@ -259,7 +265,13 @@ function PostCodeTable(props) {
         <DeliveryTypeModal
           showup={showup}
           hideup={() => {
-            setShowup({ showup: false });
+            setShowup(false);
+          }}
+          data={{
+            delivery_type_id: dtid,
+            postcode_prefix: pf,
+            min_price: min,
+            id: id,
           }}
           isEdit={true}
         />
