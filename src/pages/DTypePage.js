@@ -96,6 +96,16 @@ class DTypePage extends Component {
       });
   };
 
+  handleDelete = (id) => {
+    axios.delete(process.env.REACT_APP_DELIVERYTYPE_LIST_URL + "/" + id, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json;charset=utf-8",
+      },
+    });
+    this.props.history.push("/deliveryTypes"); //back to type list
+  };
+
   addNewPopup = () => {
     this.setState({
       modalShow: true,
@@ -159,7 +169,12 @@ class DTypePage extends Component {
             <button onClick={this.handleSubmit} className={styles.saveBtn}>
               Save Change
             </button>
-            <button className={styles.deleteBtn}>Delete Type</button>
+            <button
+              className={styles.deleteBtn}
+              onClick={() => this.handleDelete(this.state.id)}
+            >
+              Delete Type
+            </button>
           </div>
         </div>
         <Popup

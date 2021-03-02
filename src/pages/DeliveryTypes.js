@@ -23,6 +23,10 @@ class DeliveryTypes extends Component {
       });
   }
 
+  componentDidUpdate() {
+    this.componentDidMount();
+  }
+
   render() {
     const { dTypes } = this.state;
 
