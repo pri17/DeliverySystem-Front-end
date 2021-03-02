@@ -28,6 +28,13 @@ class DeliveryTypeModal extends Component {
     },
   };
 
+  //get the delivery type id
+  // componentDidMount() {
+  //   this.setState({
+  //     id: this.props.data.delivery_type_id,
+  //   });
+  // }
+
   hidePopup = () => {
     this.setState({ showPopup: false });
 
@@ -38,38 +45,18 @@ class DeliveryTypeModal extends Component {
     let value = event.target.value;
     let name = event.target.id;
 
-    if (this.props.isEdit) {
-      //When editing
-      console.log(value);
-      if (name === "postcode_prefix")
-        this.setState({
-          postcode_prefix: value,
-          min_price: this.props.data.min_price,
-          delivery_type_id: this.props.data.delivery_type_id,
-          id: this.props.data.id,
-        });
-      if (name === "min_price")
-        this.setState({
-          postcode_prefix: this.props.data.postcode_prefix,
-          min_price: value,
-          delivery_type_id: this.props.data.delivery_type_id,
-          id: this.props.data.id,
-        });
-    } else {
-      //When adding new
-      if (name === "postcode_prefix")
-        this.setState({
-          postcode_prefix: value,
-          min_price: this.state.min_price,
-          delivery_type_id: this.props.data.delivery_type_id,
-        });
-      if (name === "min_price")
-        this.setState({
-          postcode_prefix: this.state.postcode_prefix,
-          min_price: value,
-          delivery_type_id: this.props.data.delivery_type_id,
-        });
-    }
+    if (name === "postcode_prefix")
+      this.setState({
+        postcode_prefix: value,
+        min_price: this.state.min_price,
+        delivery_type_id: this.props.data.delivery_type_id,
+      });
+    if (name === "min_price")
+      this.setState({
+        postcode_prefix: this.state.postcode_prefix,
+        min_price: value,
+        delivery_type_id: this.props.data.delivery_type_id,
+      });
   };
 
   AddNewPopup = () => {
@@ -144,7 +131,7 @@ class DeliveryTypeModal extends Component {
           <Modal.Body className={styles.modalBody}>
             <Form>
               <Form.Row>
-                <Form.Group as={Col} controlId={this.props.data.id}>
+                <Form.Group as={Col} controlId="postcode_prefix">
                   <Form.Label>
                     Postcode Prefix:
                     {this.props.isEdit ? null : (
@@ -154,11 +141,10 @@ class DeliveryTypeModal extends Component {
                   <Form.Control
                     type="text"
                     placeholder="Enter Postcode Prefix"
-                    name="postcode_prefix"
                     value={
                       !this.props.data ? null : this.props.data.postcode_prefix
                     }
-                    onChange={(e) => this.inputChange(e)}
+                    onChange={this.inputChange}
                     className={
                       this.state.errors.postcode_prefix
                         ? styles.formError
@@ -171,7 +157,7 @@ class DeliveryTypeModal extends Component {
                 </Form.Group>
               </Form.Row>
               <Form.Row>
-                <Form.Group as={Col} controlId={this.props.data.id}>
+                <Form.Group as={Col} controlId="min_price">
                   <Form.Label>
                     Minimum Price:{" "}
                     {this.props.isEdit ? null : (
@@ -181,9 +167,8 @@ class DeliveryTypeModal extends Component {
                   <Form.Control
                     type="text"
                     placeholder="Enter minimum price"
-                    name="min_price"
                     value={this.props.data ? this.props.data.min_price : null}
-                    onChange={(e) => this.inputChange(e)}
+                    onChange={this.inputChange}
                     className={
                       this.state.errors.min_price ? styles.formError : null
                     }
@@ -201,9 +186,7 @@ class DeliveryTypeModal extends Component {
               Close
             </Button>
             {this.props.isEdit ? (
-              <Button variant="primary" onClick={this.AddNewPopup}>
-                Edit
-              </Button>
+              <Button variant="primary">Edit</Button>
             ) : (
               <Button variant="primary" onClick={this.AddNewPopup}>
                 Add

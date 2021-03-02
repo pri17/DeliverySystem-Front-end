@@ -13,12 +13,20 @@ class DTypePage extends Component {
     name: null,
     enabled: null,
     isLoading: false,
-    id: null,
+    id: null, // delivery type id
     showPopup: false,
     message: null,
     postcode_list: null,
-    modalShow: false,
     backURL: "",
+    //Modal state
+    modalShow: false,
+    isEdit: false,
+    ModalData: {
+      id: null,
+      postcode_prefix: null,
+      min_price: null,
+      delivery_type_id: null,
+    },
   };
 
   componentDidMount() {
@@ -109,6 +117,13 @@ class DTypePage extends Component {
   addNewPopup = () => {
     this.setState({
       modalShow: true,
+      isEdit: false,
+      ModalData: {
+        id: null,
+        postcode_prefix: null,
+        min_price: null,
+        delivery_type_id: this.state.id,
+      },
     });
   };
 
@@ -118,18 +133,55 @@ class DTypePage extends Component {
     });
   };
 
+  deletePostcode = (id) => {
+    axios.delete(process.env.REACT_APP_POSTCODE_ADD_URL + "/" + id, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json;charset=utf-8",
+      },
+    });
+    window.location.reload();
+  };
+
+  openEdit = (record) => {
+    this.setState({
+      modalShow: true,
+      isEdit: true,
+      ModalData: {
+        id: record.id,
+        postcode_prefix: record.postcode_prefix,
+        min_price: record.min_price,
+        delivery_type_id: record.delivery_type_id,
+      },
+    });
+  };
+
   render() {
     if (this.state.isLoading) {
       return <div>Loading....</div>;
     }
 
-    const postcode_headers = [
-      "ID",
-      "Postcode Prefix",
-      "Min Price",
-      "Created At",
-      "Updated At",
-    ];
+    const postCodeBody = !this.state.postcode_list
+      ? null
+      : this.state.postcode_list.map((record) => {
+          return (
+            <tr key={record.id}>
+              <td>{record.id}</td>
+              <td>{record.postcode_prefix}</td>
+              <td>{record.min_price}</td>
+              <td>{record.created_at}</td>
+              <td>{record.updated_at}</td>
+              <td>
+                <button onClick={() => this.openEdit(record)}>Edit</button>
+              </td>
+              <td>
+                <button onClick={() => this.deletePostcode(record.id)}>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          );
+        });
 
     return (
       <div className={styles.container}>
@@ -195,100 +247,30 @@ class DTypePage extends Component {
           </div>
 
           {!this.state.postcode_list ? null : (
-            <PostCodeTable
-              data={this.state.postcode_list}
-              headers={postcode_headers}
-            />
+            <table>
+              <thead>
+                <tr>
+                  <th>Postcode ID</th>
+                  <th>Postcode Prefix</th>
+                  <th>Min Price</th>
+                  <th>Created At </th>
+                  <th>Updated At </th>
+                </tr>
+              </thead>
+              <tbody>{postCodeBody}</tbody>
+            </table>
           )}
         </div>
 
         <DeliveryTypeModal
           showup={this.state.modalShow}
           hideup={this.modalHide}
-          data={{
-            delivery_type_id: this.state.id,
-            postcode_prefix: null,
-            min_price: null,
-          }}
-          isEdit={false}
+          data={this.state.ModalData}
+          isEdit={this.state.isEdit}
         />
       </div>
     );
   }
-}
-
-function PostCodeTable(props) {
-  const tableHeaders = props.headers.map((head) => {
-    return <th key={head}>{head}</th>;
-  });
-
-  const [showup, setShowup] = useState(false);
-  const [dtid, setDtid] = useState(null);
-  const [pf, setPf] = useState(null);
-  const [min, setMin] = useState(null);
-  const [id, setId] = useState(null);
-
-  const deletePostcode = (id) => {
-    axios.delete(process.env.REACT_APP_POSTCODE_ADD_URL + "/" + id, {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json;charset=utf-8",
-      },
-    });
-    window.location.reload();
-  };
-
-  const bodyData = props.data.map((record) => {
-    return (
-      <tr key={record.id}>
-        <td>{record.id}</td>
-        <td>{record.postcode_prefix}</td>
-        <td>{record.min_price}</td>
-        <td>{record.created_at}</td>
-        <td>{record.updated_at}</td>
-        <td>
-          <button
-            onClick={() => {
-              setDtid(record.delivery_type_id);
-              setId(record.id);
-              setPf(record.postcode_prefix);
-              setMin(record.min_price);
-              setShowup(true);
-            }}
-          >
-            Edit
-          </button>
-        </td>
-        <td>
-          <button onClick={() => deletePostcode(record.id)}>Delete</button>
-        </td>
-        <DeliveryTypeModal
-          showup={showup}
-          hideup={() => {
-            setShowup(false);
-          }}
-          data={{
-            delivery_type_id: dtid,
-            postcode_prefix: pf,
-            min_price: min,
-            id: id,
-          }}
-          isEdit={true}
-        />
-      </tr>
-    );
-  });
-
-  return (
-    <div className={styles.content}>
-      <table className={styles.table}>
-        <thead>
-          <tr>{tableHeaders}</tr>
-        </thead>
-        <tbody>{bodyData}</tbody>
-      </table>
-    </div>
-  );
 }
 
 export default DTypePage;
