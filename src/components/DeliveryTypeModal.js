@@ -21,28 +21,26 @@ class DeliveryTypeModal extends Component {
     showPopup: false,
     message: null,
     backURL: "",
-    id: null,
+    id: null, //postcode id
     errors: {
       postcode_prefix: null,
       min_price: null,
     },
   };
 
-  // static getDerivedStateFromProps(props, state) {
-  //  // super(props);
-  //   console.log(props);
-  //   return  {
-  //     postcode_prefix: props.data.postcode_prefix,
-  //     min_price: props.data.min_price,
-  //     delivery_type_id: props.data.delivery_type_id,
-  //   };
-  // }
   //get the delivery type id
-  // componentDidMount() {
-  //   this.setState({
-  //     id: this.props.data.delivery_type_id,
-  //   });
-  // }
+  componentDidUpdate() {
+    if (this.props.isEdit) {
+      if (!this.state.postcode_prefix || this.state.postcode_prefix === "") {
+        this.setState({
+          postcode_prefix: this.props.data.postcode_prefix,
+          min_price: this.props.data.min_price,
+          delivery_type_id: this.props.data.delivery_type_id,
+          id: this.props.data.id,
+        });
+      }
+    }
+  }
 
   hidePopup = () => {
     this.setState({
@@ -56,7 +54,6 @@ class DeliveryTypeModal extends Component {
   };
 
   inputChange = (event) => {
-    console.log(this.state);
     let value = event.target.value;
     let name = event.target.id;
 
@@ -65,12 +62,14 @@ class DeliveryTypeModal extends Component {
         postcode_prefix: value,
         min_price: this.state.min_price,
         delivery_type_id: this.props.data.delivery_type_id,
+        id: this.props.data.id,
       });
     if (name === "min_price")
       this.setState({
         postcode_prefix: this.state.postcode_prefix,
         min_price: value,
         delivery_type_id: this.props.data.delivery_type_id,
+        id: this.props.data.id,
       });
   };
 
@@ -88,7 +87,7 @@ class DeliveryTypeModal extends Component {
     if (!this.state.min_price || this.state.min_price === "") {
       errors.min_price = "Minimun price is required!";
       isError = true;
-    } else if (!this.state.min_price.match(regex)) {
+    } else if (!this.state.min_price.toString().match(regex)) {
       errors.min_price = "Please input numbers with two decimal";
       isError = true;
     }
@@ -103,12 +102,19 @@ class DeliveryTypeModal extends Component {
       };
 
       axios
-        .post(process.env.REACT_APP_POSTCODE_ADD_URL, params, {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json;charset=utf-8",
-          },
-        })
+        .post(
+          //Change URL if in editing mode
+          this.props.isEdit
+            ? process.env.REACT_APP_POSTCODE_ADD_URL + "/" + this.state.id
+            : process.env.REACT_APP_POSTCODE_ADD_URL,
+          params,
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json;charset=utf-8",
+            },
+          }
+        )
         .then((res) => {
           this.setState({
             showPopup: true,
@@ -209,7 +215,9 @@ class DeliveryTypeModal extends Component {
               Close
             </Button>
             {this.props.isEdit ? (
-              <Button variant="primary">Edit</Button>
+              <Button variant="primary" onClick={this.AddNewPopup}>
+                Edit
+              </Button>
             ) : (
               <Button variant="primary" onClick={this.AddNewPopup}>
                 Add
