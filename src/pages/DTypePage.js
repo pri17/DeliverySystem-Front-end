@@ -1,10 +1,10 @@
 import React, { Component, useState } from "react";
 import axios from "axios";
 import Popup from "../components/Popup";
+import ComfirmPopup from "../components/ComfirmPopup";
 import styles from "./DTypePage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import Button from "react-bootstrap/Button";
 import "bootstrap/dist/css/bootstrap.min.css";
 import DeliveryTypeModal from "../components/DeliveryTypeModal";
 
@@ -27,6 +27,8 @@ class DTypePage extends Component {
       min_price: null,
       delivery_type_id: null,
     },
+    showConfirm1: false,
+    showConfirm2: false,
   };
 
   componentDidMount() {
@@ -104,14 +106,28 @@ class DTypePage extends Component {
       });
   };
 
-  handleDelete = (id) => {
-    axios.delete(process.env.REACT_APP_DELIVERYTYPE_LIST_URL + "/" + id, {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json;charset=utf-8",
-      },
+  handleDeleteType = () => {
+    this.setState({
+      showConfirm1: true,
+      message: "Are you sure to delete the delivery type?",
     });
+  };
+
+  confirmDeleteType = () => {
+    axios.delete(
+      process.env.REACT_APP_DELIVERYTYPE_LIST_URL + "/" + this.state.id,
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      }
+    );
     this.props.history.push("/deliveryTypes"); //back to type list
+  };
+
+  hideConfirmPopup = () => {
+    this.setState({ showConfirm1: false, showConfirm2: false });
   };
 
   addNewPopup = () => {
@@ -134,12 +150,23 @@ class DTypePage extends Component {
   };
 
   deletePostcode = (id) => {
-    axios.delete(process.env.REACT_APP_POSTCODE_ADD_URL + "/" + id, {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json;charset=utf-8",
-      },
+    this.setState({
+      showConfirm2: true,
+      message: "Are you sure to delete the postcode?",
+      ModalData: { id: id },
     });
+  };
+
+  confirmDeletePostcode = () => {
+    axios.delete(
+      process.env.REACT_APP_POSTCODE_ADD_URL + "/" + this.state.ModalData.id,
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      }
+    );
     window.location.reload();
   };
 
@@ -223,7 +250,7 @@ class DTypePage extends Component {
             </button>
             <button
               className={styles.deleteBtn}
-              onClick={() => this.handleDelete(this.state.id)}
+              onClick={this.handleDeleteType}
             >
               Delete Type
             </button>
@@ -234,6 +261,13 @@ class DTypePage extends Component {
           handleClose={this.hidePopup}
           message={this.state.message}
         ></Popup>
+
+        <ComfirmPopup
+          show={this.state.showConfirm1}
+          handleDelete={this.confirmDeleteType}
+          handleClose={this.hideConfirmPopup}
+          message={this.state.message}
+        ></ComfirmPopup>
 
         <div className={styles.PostCodeList}>
           <div className={styles.title2}>
@@ -268,6 +302,13 @@ class DTypePage extends Component {
           data={this.state.ModalData}
           isEdit={this.state.isEdit}
         />
+
+        <ComfirmPopup
+          show={this.state.showConfirm2}
+          handleDelete={this.confirmDeletePostcode}
+          handleClose={this.hideConfirmPopup}
+          message={this.state.message}
+        ></ComfirmPopup>
       </div>
     );
   }
