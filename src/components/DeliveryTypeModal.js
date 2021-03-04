@@ -28,6 +28,15 @@ class DeliveryTypeModal extends Component {
     },
   };
 
+  // static getDerivedStateFromProps(props, state) {
+  //  // super(props);
+  //   console.log(props);
+  //   return  {
+  //     postcode_prefix: props.data.postcode_prefix,
+  //     min_price: props.data.min_price,
+  //     delivery_type_id: props.data.delivery_type_id,
+  //   };
+  // }
   //get the delivery type id
   // componentDidMount() {
   //   this.setState({
@@ -36,12 +45,18 @@ class DeliveryTypeModal extends Component {
   // }
 
   hidePopup = () => {
-    this.setState({ showPopup: false });
+    this.setState({
+      showPopup: false,
+      // postcode_prefix: null,
+      // min_price: null,
+      // delivery_type_id: null,
+    });
 
     window.location.reload();
   };
 
   inputChange = (event) => {
+    console.log(this.state);
     let value = event.target.value;
     let name = event.target.id;
 
@@ -140,9 +155,12 @@ class DeliveryTypeModal extends Component {
                   </Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter Postcode Prefix"
                     value={
-                      !this.props.data ? null : this.props.data.postcode_prefix
+                      !this.state.postcode_prefix
+                        ? !this.props.data.postcode_prefix
+                          ? null
+                          : this.props.data.postcode_prefix
+                        : this.state.postcode_prefix
                     }
                     onChange={this.inputChange}
                     className={
@@ -166,8 +184,13 @@ class DeliveryTypeModal extends Component {
                   </Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter minimum price"
-                    value={this.props.data ? this.props.data.min_price : null}
+                    value={
+                      this.state.min_price
+                        ? this.state.min_price
+                        : !this.props.data.min_price
+                        ? null
+                        : this.props.data.min_price
+                    }
                     onChange={this.inputChange}
                     className={
                       this.state.errors.min_price ? styles.formError : null
