@@ -6,7 +6,7 @@ import styles from "./DTypePage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
-import DeliveryTypeModal from "../components/DeliveryTypeModal";
+import PostCodeModal from "../components/PostCodeModal";
 
 class DTypePage extends Component {
   state = {
@@ -296,7 +296,7 @@ class DTypePage extends Component {
           )}
         </div>
 
-        <DeliveryTypeModal
+        <PostCodeModal
           showup={this.state.modalShow}
           hideup={this.modalHide}
           data={this.state.ModalData}
