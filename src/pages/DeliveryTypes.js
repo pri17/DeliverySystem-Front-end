@@ -1,11 +1,20 @@
 import React, { Component } from "react";
 import axios from "axios";
 import styles from "./DeliveryTypes.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import "bootstrap/dist/css/bootstrap.min.css";
+import DeliveryTypeModal from "../components/DeliveryTypeModal";
 
 class DeliveryTypes extends Component {
   state = {
     dTypes: [],
-    addBtn: false,
+    addModal: false,
+    ModalData: {
+      id: null,
+      name: null,
+      enabled: null,
+    },
   };
 
   componentDidMount() {
@@ -23,9 +32,22 @@ class DeliveryTypes extends Component {
       });
   }
 
-  componentDidUpdate() {
-    this.componentDidMount();
-  }
+  modalHide = () => {
+    this.setState({
+      addModal: false,
+    });
+  };
+
+  addNewPopup = () => {
+    this.setState({
+      addModal: true,
+      ModalData: {
+        id: null,
+        name: null,
+        enabled: null,
+      },
+    });
+  };
 
   render() {
     const { dTypes } = this.state;
@@ -40,9 +62,23 @@ class DeliveryTypes extends Component {
 
     return (
       <div className={styles.content}>
-        <h1> Delivery Types List</h1>
+        <div className={styles.titleSection}>
+          <h1>Delivery Types List</h1>
+          <FontAwesomeIcon
+            icon={faPlus}
+            size="lg"
+            onClick={this.addNewPopup}
+            className={styles.plusBtn}
+          />
+        </div>
 
         <DeliveryTable data={dTypes} headers={headers} props={this.props} />
+
+        <DeliveryTypeModal
+          showup={this.state.addModal}
+          hideup={this.modalHide}
+          data={this.state.ModalData}
+        />
       </div>
     );
   }

@@ -51,3 +51,12 @@
 .statusBar {
   display: flex;
 }
+
+.plusBtn {
+  float: right;
+  display: inline;
+}
+
+.titleSection {
+  margin: 50px 50px;
+}
