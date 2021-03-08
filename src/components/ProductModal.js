@@ -8,15 +8,16 @@ import Popup from "./Popup";
 
 import styles from "./DeliveryTypeModal.module.css";
 
-class DeliveryTypeModal extends Component {
+class ProductModal extends Component {
   state = {
     name: null,
-    enabled: null,
+    delivery_multiplier: null,
     id: null,
     showPopup: false,
     message: null,
     errors: {
       name: null,
+      delivery_multiplier: null,
     },
   };
 
@@ -30,16 +31,29 @@ class DeliveryTypeModal extends Component {
 
   inputChange = (event) => {
     if (event.target.id === "name") this.setState({ name: event.target.value });
-    if (event.target.id === "enabled")
-      this.setState({ enabled: event.target.checked });
+    if (event.target.id === "delivery_multiplier")
+      this.setState({ delivery_multiplier: event.target.value });
   };
 
   AddNewPopup = () => {
     let errors = this.state.errors;
     let isError = false;
 
+    var regex = /(0|([1-9]\d*))\.\d{2}$/;
+
     if (!this.state.name || this.state.name === "") {
       errors.name = "Name is required!";
+      isError = true;
+    }
+
+    if (
+      !this.state.delivery_multiplier ||
+      this.state.delivery_multiplier === ""
+    ) {
+      errors.delivery_multiplier = "Delivery Multiplier is required!";
+      isError = true;
+    } else if (!this.state.delivery_multiplier.toString().match(regex)) {
+      errors.delivery_multiplier = "Please input numbers with two decimal";
       isError = true;
     }
 
@@ -48,11 +62,11 @@ class DeliveryTypeModal extends Component {
     if (!isError) {
       const params = {
         name: this.state.name,
-        enabled: this.state.enabled ? 1 : 0,
+        delivery_multiplier: this.state.delivery_multiplier,
       };
 
       axios
-        .post(process.env.REACT_APP_DELIVERYTYPE_LIST_URL, params, {
+        .post(process.env.REACT_APP_PRODUCTS_LIST_URL, params, {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json;charset=utf-8",
@@ -70,7 +84,7 @@ class DeliveryTypeModal extends Component {
             message: "Add Failed!",
           });
         });
-      this.setState({ name: null, min_price: null }, () => {
+      this.setState({ name: null, delivery_multiplier: null }, () => {
         this.props.hideup();
       });
     }
@@ -85,7 +99,7 @@ class DeliveryTypeModal extends Component {
           onHide={this.props.hideup}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Add New Delivery Type</Modal.Title>
+            <Modal.Title>Add New Product</Modal.Title>
           </Modal.Header>
 
           <Modal.Body className={styles.modalBody}>
@@ -105,10 +119,22 @@ class DeliveryTypeModal extends Component {
                 </Form.Group>
               </Form.Row>
               <Form.Row>
-                <Form.Group as={Col} controlId="enabled">
-                  <div className={styles.enableBox}>
-                    <Form.Label>Enabled:</Form.Label>
-                    <Form.Control type="checkbox" onChange={this.inputChange} />
+                <Form.Group as={Col} controlId="delivery_multiplier">
+                  <Form.Label>
+                    delivery_multiplier:
+                    <span className={styles.formRed}>(required)</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    onChange={this.inputChange}
+                    className={
+                      this.state.errors.delivery_multiplier
+                        ? styles.formError
+                        : null
+                    }
+                  />
+                  <div className={styles.error}>
+                    {this.state.errors.delivery_multiplier}
                   </div>
                 </Form.Group>
               </Form.Row>
@@ -136,4 +162,4 @@ class DeliveryTypeModal extends Component {
   }
 }
 
-export default DeliveryTypeModal;
+export default ProductModal;

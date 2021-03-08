@@ -1,10 +1,20 @@
 import React, { Component } from "react";
 import axios from "axios";
 import styles from "./Products.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import "bootstrap/dist/css/bootstrap.min.css";
+import ProductModal from "../components/ProductModal";
 
 class Products extends Component {
   state = {
     products: [],
+    addModal: false,
+    ModalData: {
+      id: null,
+      name: null,
+      delivery_multiplier: null,
+    },
   };
 
   componentDidMount() {
@@ -22,6 +32,23 @@ class Products extends Component {
       });
   }
 
+  modalHide = () => {
+    this.setState({
+      addModal: false,
+    });
+  };
+
+  addNewPopup = () => {
+    this.setState({
+      addModal: true,
+      ModalData: {
+        id: null,
+        name: null,
+        delivery_multiplier: null,
+      },
+    });
+  };
+
   render() {
     const { products } = this.state;
 
@@ -35,8 +62,22 @@ class Products extends Component {
 
     return (
       <div className={styles.content}>
-        <h1> Products List</h1>
+        <div className={styles.titleSection}>
+          <h1> Products List</h1>
+          <FontAwesomeIcon
+            icon={faPlus}
+            size="lg"
+            onClick={this.addNewPopup}
+            className={styles.plusBtn}
+          />
+        </div>
         <ProductsTable data={products} headers={headers} props={this.props} />
+
+        <ProductModal
+          showup={this.state.addModal}
+          hideup={this.modalHide}
+          data={this.state.ModalData}
+        />
       </div>
     );
   }
