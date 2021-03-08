@@ -10,11 +10,6 @@ class DeliveryTypes extends Component {
   state = {
     dTypes: [],
     addModal: false,
-    ModalData: {
-      id: null,
-      name: null,
-      enabled: null,
-    },
   };
 
   componentDidMount() {
@@ -41,11 +36,6 @@ class DeliveryTypes extends Component {
   addNewPopup = () => {
     this.setState({
       addModal: true,
-      ModalData: {
-        id: null,
-        name: null,
-        enabled: null,
-      },
     });
   };
 
@@ -77,7 +67,6 @@ class DeliveryTypes extends Component {
         <DeliveryTypeModal
           showup={this.state.addModal}
           hideup={this.modalHide}
-          data={this.state.ModalData}
         />
       </div>
     );

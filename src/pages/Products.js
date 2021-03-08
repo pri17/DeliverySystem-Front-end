@@ -10,11 +10,6 @@ class Products extends Component {
   state = {
     products: [],
     addModal: false,
-    ModalData: {
-      id: null,
-      name: null,
-      delivery_multiplier: null,
-    },
   };
 
   componentDidMount() {
@@ -41,11 +36,6 @@ class Products extends Component {
   addNewPopup = () => {
     this.setState({
       addModal: true,
-      ModalData: {
-        id: null,
-        name: null,
-        delivery_multiplier: null,
-      },
     });
   };
 
@@ -73,11 +63,7 @@ class Products extends Component {
         </div>
         <ProductsTable data={products} headers={headers} props={this.props} />
 
-        <ProductModal
-          showup={this.state.addModal}
-          hideup={this.modalHide}
-          data={this.state.ModalData}
-        />
+        <ProductModal showup={this.state.addModal} hideup={this.modalHide} />
       </div>
     );
   }
