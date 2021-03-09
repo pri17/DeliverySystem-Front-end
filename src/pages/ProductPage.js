@@ -19,6 +19,7 @@ class ProductPage extends Component {
     delivery_blacklist: [],
     showConfirm1: false,
     addBlack: false,
+    delivery_types: [], // for blacklist table
   };
 
   componentDidMount() {
@@ -27,6 +28,7 @@ class ProductPage extends Component {
     this.setState({
       isLoading: true,
     });
+
     axios
       .get(process.env.REACT_APP_PRODUCTS_LIST_URL + "/" + id, {
         headers: {
@@ -41,6 +43,20 @@ class ProductPage extends Component {
           id: res.data.id,
           isLoading: false,
           delivery_blacklist: res.data.deliveryBlacklists,
+        });
+      });
+
+    //get all type list
+    axios
+      .get(process.env.REACT_APP_DELIVERYTYPE_LIST_URL, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      })
+      .then((res) => {
+        this.setState({
+          delivery_types: res.data,
         });
       });
   }
@@ -123,13 +139,19 @@ class ProductPage extends Component {
       return <div>Loading....</div>;
     }
 
+    const types = [...this.state.delivery_types];
+
     const blistBody = !this.state.delivery_blacklist
       ? null
       : this.state.delivery_blacklist.map((record) => {
+          var typetype = types.filter(
+            (item) => item.id === record.delivery_type_id
+          );
+
           return (
             <tr key={record.id}>
               <td>{record.id}</td>
-              <td>{record.delivery_type_id}</td>
+              <td>{!typetype.length ? null : typetype[0].name}</td>
               <td>{record.created_at}</td>
               <td>{record.updated_at}</td>
               <td>
@@ -217,7 +239,7 @@ class ProductPage extends Component {
               <thead>
                 <tr>
                   <th>Blacklist ID</th>
-                  <th>Delivery Type ID</th>
+                  <th>Delivery Type Name</th>
                   <th>Created At </th>
                   <th>Updated At </th>
                 </tr>
