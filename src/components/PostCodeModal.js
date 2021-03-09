@@ -26,28 +26,12 @@ class PostCodeModal extends Component {
       postcode_prefix: null,
       min_price: null,
     },
+    isEdit: false,
   };
-
-  //get the delivery type id
-  componentDidUpdate() {
-    if (this.props.isEdit) {
-      if (!this.state.postcode_prefix || this.state.postcode_prefix === "") {
-        this.setState({
-          postcode_prefix: this.props.data.postcode_prefix,
-          min_price: this.props.data.min_price,
-          delivery_type_id: this.props.data.delivery_type_id,
-          id: this.props.data.id,
-        });
-      }
-    }
-  }
 
   hidePopup = () => {
     this.setState({
       showPopup: false,
-      // postcode_prefix: null,
-      // min_price: null,
-      // delivery_type_id: null,
     });
 
     window.location.reload();
@@ -61,17 +45,24 @@ class PostCodeModal extends Component {
       this.setState({
         postcode_prefix: value,
         min_price: this.state.min_price,
-        delivery_type_id: this.props.data.delivery_type_id,
-        id: this.props.data.id,
       });
     if (name === "min_price")
       this.setState({
         postcode_prefix: this.state.postcode_prefix,
         min_price: value,
-        delivery_type_id: this.props.data.delivery_type_id,
-        id: this.props.data.id,
       });
   };
+
+  componentWillReceiveProps(nextProps) {
+    // update state from props.
+    this.setState({
+      id: nextProps.data.id,
+      postcode_prefix: nextProps.data.postcode_prefix,
+      min_price: nextProps.data.min_price,
+      delivery_type_id: nextProps.data.delivery_type_id,
+      isEdit: nextProps.isEdit,
+    });
+  }
 
   AddNewPopup = () => {
     let errors = this.state.errors;
@@ -104,7 +95,7 @@ class PostCodeModal extends Component {
       axios
         .post(
           //Change URL if in editing mode
-          this.props.isEdit
+          this.state.isEdit
             ? process.env.REACT_APP_POSTCODE_ADD_URL + "/" + this.state.id
             : process.env.REACT_APP_POSTCODE_ADD_URL,
           params,
@@ -118,14 +109,14 @@ class PostCodeModal extends Component {
         .then((res) => {
           this.setState({
             showPopup: true,
-            message: "Add Sucess!",
+            message: this.state.isEdit ? "Edit Success" : "Add Sucess!",
             backURL: "deliveryTypes",
           });
         })
         .catch((error) => {
           this.setState({
             showPopup: true,
-            message: "Add Failed!",
+            message: this.state.isEdit ? "Edit Failed" : "Add Failed!",
             backURL: "deliveryTypes",
           });
         });
@@ -145,7 +136,7 @@ class PostCodeModal extends Component {
         >
           <Modal.Header closeButton>
             <Modal.Title>
-              {this.props.isEdit ? "Edit PostCode" : "Add New PostCode"}
+              {this.state.isEdit ? "Edit PostCode" : "Add New PostCode"}
             </Modal.Title>
           </Modal.Header>
 
@@ -155,7 +146,7 @@ class PostCodeModal extends Component {
                 <Form.Group as={Col} controlId="postcode_prefix">
                   <Form.Label>
                     Postcode Prefix:
-                    {this.props.isEdit ? null : (
+                    {this.state.isEdit ? null : (
                       <span className={styles.formRed}>(required)</span>
                     )}
                   </Form.Label>
@@ -184,7 +175,7 @@ class PostCodeModal extends Component {
                 <Form.Group as={Col} controlId="min_price">
                   <Form.Label>
                     Minimum Price:{" "}
-                    {this.props.isEdit ? null : (
+                    {this.state.isEdit ? null : (
                       <span className={styles.formRed}>(required)</span>
                     )}
                   </Form.Label>
@@ -214,7 +205,7 @@ class PostCodeModal extends Component {
             <Button variant="secondary" onClick={this.props.hideup}>
               Close
             </Button>
-            {this.props.isEdit ? (
+            {this.state.isEdit ? (
               <Button variant="primary" onClick={this.AddNewPopup}>
                 Edit
               </Button>

@@ -146,6 +146,12 @@ class DTypePage extends Component {
   modalHide = () => {
     this.setState({
       modalShow: false,
+      ModalData: {
+        id: null,
+        postcode_prefix: null,
+        min_price: null,
+        delivery_type_id: null,
+      },
     });
   };
 
