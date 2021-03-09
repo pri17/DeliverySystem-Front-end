@@ -24,6 +24,9 @@ class ProductPage extends Component {
     confirmData: {
       id: null,
     },
+    //different from add mode
+    isEdit: false,
+    editData: { delivery_type_id: null, blacklist_id: null },
   };
 
   componentDidMount() {
@@ -135,6 +138,8 @@ class ProductPage extends Component {
   addBlackHide = () => {
     this.setState({
       addBlack: false,
+      isEdit: false,
+      editData: { delivery_type_id: null, blacklist_id: null },
     });
   };
 
@@ -159,6 +164,14 @@ class ProductPage extends Component {
     window.location.reload();
   };
 
+  openEdit = (id1, id2) => {
+    this.setState({
+      addBlack: true,
+      isEdit: true,
+      editData: { delivery_type_id: id1, blacklist_id: id2 },
+    });
+  };
+
   render() {
     if (this.state.isLoading) {
       return <div>Loading....</div>;
@@ -180,7 +193,13 @@ class ProductPage extends Component {
               <td>{record.created_at}</td>
               <td>{record.updated_at}</td>
               <td>
-                <button>Edit</button>
+                <button
+                  onClick={() =>
+                    this.openEdit(record.delivery_type_id, record.id)
+                  }
+                >
+                  Edit
+                </button>
               </td>
               <td>
                 <button onClick={() => this.deleteBlackList(record.id)}>
@@ -280,6 +299,8 @@ class ProductPage extends Component {
           showup={this.state.addBlack}
           hideup={this.addBlackHide}
           product_id={this.state.id}
+          isEdit={this.state.isEdit}
+          editData={this.state.editData}
         />
 
         <ComfirmPopup

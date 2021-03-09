@@ -14,13 +14,18 @@ import styles from "./PostCodeModal.module.css";
 //data
 class BlacklistModal extends Component {
   state = {
+    id: null, //blackList id
+
     delivery_type_id: null,
+
+    isEdit: false,
+
     product_id: this.props.product_id, // product id from parent component
     showPopup: false,
     message: null,
     backURL: "",
     dTypeList: [], // the dropdown list
-    id: null, //blackList id
+
     errors: {
       delivery_type_id: null,
     },
@@ -98,12 +103,59 @@ class BlacklistModal extends Component {
     });
   };
 
+  componentWillReceiveProps(nextProps) {
+    // update state from props.
+    this.setState({
+      id: nextProps.editData.blacklist_id, //blackList id
+
+      delivery_type_id: nextProps.editData.delivery_type_id,
+
+      isEdit: nextProps.isEdit,
+
+      product_id: nextProps.product_id, // product id from parent component
+    });
+  }
+
+  editBlacklist = () => {
+    const params = {
+      delivery_type_id: this.state.delivery_type_id,
+      product_id: this.state.product_id,
+    };
+
+    axios
+      .post(process.env.REACT_APP_BLACKLIST_URL + "/" + this.state.id, params, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      })
+      .then((res) => {
+        this.setState({
+          showPopup: true,
+          message: "Edit Sucess!",
+        });
+      })
+      .catch((error) => {
+        this.setState({
+          showPopup: true,
+          message: "Edit Failed!",
+        });
+      });
+    this.setState({ delivery_type_id: null }, () => {
+      this.props.hideup();
+    });
+  };
+
   render() {
     const typeDropdown = !this.state.dTypeList
       ? null
       : this.state.dTypeList.map((item) => {
           return (
-            <Dropdown.Item eventKey={item.id} onSelect={this.setDropdownType}>
+            <Dropdown.Item
+              eventKey={item.id}
+              onSelect={this.setDropdownType}
+              active={item.id === this.state.delivery_type_id ? true : false}
+            >
               {item.name}
             </Dropdown.Item>
           );
@@ -117,7 +169,9 @@ class BlacklistModal extends Component {
           onHide={this.props.hideup}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Add New BlackList</Modal.Title>
+            <Modal.Title>
+              {!this.state.isEdit ? "Add New BlackList" : "Edit BlackList"}
+            </Modal.Title>
           </Modal.Header>
 
           <Modal.Body className={styles.modalBody}>
@@ -126,8 +180,11 @@ class BlacklistModal extends Component {
                 <Form.Group as={Col} controlId="delivery_type_id">
                   <Form.Label>
                     Delivery Type:
-                    <span className={styles.formRed}>(required)</span>
+                    {!this.state.isEdit ? (
+                      <span className={styles.formRed}>(required)</span>
+                    ) : null}
                   </Form.Label>
+
                   <Dropdown>{typeDropdown}</Dropdown>
                   <div className={styles.error}>
                     {this.state.errors.delivery_type_id}
@@ -141,9 +198,16 @@ class BlacklistModal extends Component {
             <Button variant="secondary" onClick={this.props.hideup}>
               Close
             </Button>
-            <Button variant="primary" onClick={this.AddNewPopup}>
-              Add
-            </Button>
+
+            {!this.state.isEdit ? (
+              <Button variant="primary" onClick={this.AddNewPopup}>
+                Add
+              </Button>
+            ) : (
+              <Button variant="primary" onClick={this.editBlacklist}>
+                Edit
+              </Button>
+            )}
           </Modal.Footer>
         </Modal>
         <Popup
