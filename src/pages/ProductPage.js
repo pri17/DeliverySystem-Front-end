@@ -18,8 +18,12 @@ class ProductPage extends Component {
     message: null,
     delivery_blacklist: [],
     showConfirm1: false,
+    showConfirm2: false,
     addBlack: false,
     delivery_types: [], // for blacklist table
+    confirmData: {
+      id: null,
+    },
   };
 
   componentDidMount() {
@@ -106,7 +110,7 @@ class ProductPage extends Component {
   };
 
   hideConfirmPopup = () => {
-    this.setState({ showConfirm1: false });
+    this.setState({ showConfirm1: false, showConfirm2: false });
   };
 
   confirmDeleteProduct = () => {
@@ -134,6 +138,27 @@ class ProductPage extends Component {
     });
   };
 
+  deleteBlackList = (id) => {
+    this.setState({
+      showConfirm2: true,
+      message: "Are you sure to delete the blacklist?",
+      confirmData: { id: id },
+    });
+  };
+
+  confirmDeleteBlacklist = () => {
+    axios.delete(
+      process.env.REACT_APP_BLACKLIST_URL + "/" + this.state.confirmData.id,
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      }
+    );
+    window.location.reload();
+  };
+
   render() {
     if (this.state.isLoading) {
       return <div>Loading....</div>;
@@ -158,7 +183,9 @@ class ProductPage extends Component {
                 <button>Edit</button>
               </td>
               <td>
-                <button>Delete</button>
+                <button onClick={() => this.deleteBlackList(record.id)}>
+                  Delete
+                </button>
               </td>
             </tr>
           );
@@ -254,6 +281,13 @@ class ProductPage extends Component {
           hideup={this.addBlackHide}
           product_id={this.state.id}
         />
+
+        <ComfirmPopup
+          show={this.state.showConfirm2}
+          handleDelete={this.confirmDeleteBlacklist}
+          handleClose={this.hideConfirmPopup}
+          message={this.state.message}
+        ></ComfirmPopup>
       </div>
     );
   }
