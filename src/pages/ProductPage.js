@@ -23,7 +23,6 @@ class ProductPage extends Component {
 
   componentDidMount() {
     let id = this.props.match.params.id;
-    //console.log("This depot id is " + id);
 
     this.setState({
       isLoading: true,
@@ -104,7 +103,7 @@ class ProductPage extends Component {
         },
       }
     );
-    this.props.history.push("/products");
+    window.location.replace("/products");
   };
 
   addNewBlacklist = () => {
@@ -231,6 +230,7 @@ class ProductPage extends Component {
         <BlacklistModal
           showup={this.state.addBlack}
           hideup={this.addBlackHide}
+          product_id={this.state.id}
         />
       </div>
     );

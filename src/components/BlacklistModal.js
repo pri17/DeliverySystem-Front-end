@@ -15,16 +15,32 @@ import styles from "./PostCodeModal.module.css";
 class BlacklistModal extends Component {
   state = {
     delivery_type_id: null,
+    product_id: this.props.product_id, // product id from parent component
     showPopup: false,
     message: null,
     backURL: "",
     dTypeList: [], // the dropdown list
-    id: null, //postcode id
+    id: null, //blackList id
     errors: {
-      postcode_prefix: null,
-      min_price: null,
+      delivery_type_id: null,
     },
   };
+
+  componentDidMount() {
+    //get type list
+    axios
+      .get(process.env.REACT_APP_DELIVERYTYPE_LIST_URL, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      })
+      .then((res) => {
+        this.setState({
+          dTypeList: res.data,
+        });
+      });
+  }
 
   hidePopup = () => {
     this.setState({
@@ -34,74 +50,65 @@ class BlacklistModal extends Component {
     window.location.reload();
   };
 
-  inputChange = (event) => {
-    let value = event.target.value;
-    let name = event.target.id;
-
-    if (name === "postcode_prefix")
-      this.setState({
-        postcode_prefix: value,
-        min_price: this.state.min_price,
-        delivery_type_id: this.props.data.delivery_type_id,
-        id: this.props.data.id,
-      });
-    if (name === "min_price")
-      this.setState({
-        postcode_prefix: this.state.postcode_prefix,
-        min_price: value,
-        delivery_type_id: this.props.data.delivery_type_id,
-        id: this.props.data.id,
-      });
-  };
-
   AddNewPopup = () => {
     let errors = this.state.errors;
     let isError = false;
+
+    if (!this.state.delivery_type_id) {
+      errors.delivery_type_id = "One type is required to be selected!";
+      isError = true;
+    }
 
     this.setState({ errors: errors });
 
     if (!isError) {
       const params = {
-        postcode_prefix: this.state.postcode_prefix,
-        min_price: this.state.min_price,
         delivery_type_id: this.state.delivery_type_id,
+        product_id: this.state.product_id,
       };
 
       axios
-        .post(
-          //Change URL if in editing mode
-          this.props.isEdit
-            ? process.env.REACT_APP_POSTCODE_ADD_URL + "/" + this.state.id
-            : process.env.REACT_APP_POSTCODE_ADD_URL,
-          params,
-          {
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json;charset=utf-8",
-            },
-          }
-        )
+        .post(process.env.REACT_APP_BLACKLIST_URL, params, {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json;charset=utf-8",
+          },
+        })
         .then((res) => {
           this.setState({
             showPopup: true,
             message: "Add Sucess!",
-            backURL: "deliveryTypes",
           });
         })
         .catch((error) => {
           this.setState({
             showPopup: true,
             message: "Add Failed!",
-            backURL: "deliveryTypes",
           });
         });
-      this.setState({ postcode_prefix: null, min_price: null }, () => {
+      this.setState({ delivery_type_id: null }, () => {
         this.props.hideup();
       });
     }
   };
 
+  setDropdownType = (eventKey, event) => {
+    this.setState({
+      delivery_type_id: eventKey,
+    });
+  };
+
   render() {
+    const typeDropdown = !this.state.dTypeList
+      ? null
+      : this.state.dTypeList.map((item) => {
+          return (
+            <Dropdown.Item eventKey={item.id} onSelect={this.setDropdownType}>
+              {item.name}
+            </Dropdown.Item>
+          );
+        });
+
     return (
       <div>
         <Modal
@@ -116,16 +123,15 @@ class BlacklistModal extends Component {
           <Modal.Body className={styles.modalBody}>
             <Form>
               <Form.Row>
-                <Form.Group as={Col} controlId="min_price">
+                <Form.Group as={Col} controlId="delivery_type_id">
                   <Form.Label>
                     Delivery Type:
                     <span className={styles.formRed}>(required)</span>
                   </Form.Label>
-                  <Dropdown>
-                    <Dropdown.Item eventKey="option-1">option-1</Dropdown.Item>
-                    <Dropdown.Item eventKey="option-2">option-2</Dropdown.Item>
-                    <Dropdown.Item eventKey="option-3">option 3</Dropdown.Item>
-                  </Dropdown>
+                  <Dropdown>{typeDropdown}</Dropdown>
+                  <div className={styles.error}>
+                    {this.state.errors.delivery_type_id}
+                  </div>
                 </Form.Group>
               </Form.Row>
             </Form>
@@ -140,6 +146,11 @@ class BlacklistModal extends Component {
             </Button>
           </Modal.Footer>
         </Modal>
+        <Popup
+          show={this.state.showPopup}
+          handleClose={this.hidePopup}
+          message={this.state.message}
+        ></Popup>
       </div>
     );
   }
