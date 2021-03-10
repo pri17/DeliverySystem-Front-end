@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 import DeliveryPriceModal from "../components/DeliveryPriceModal";
+import ComfirmPopup from "../components/ComfirmPopup";
 
 class DepotPage extends Component {
   state = {
@@ -29,6 +30,11 @@ class DepotPage extends Component {
       depot_id: null,
       price_id: null,
     },
+
+    //for delete price
+    showConfirm: false,
+    message: null,
+    confirmData: { id: null },
   };
 
   componentDidMount() {
@@ -156,6 +162,31 @@ class DepotPage extends Component {
     });
   };
 
+  deletePrice = (id) => {
+    this.setState({
+      showConfirm: true,
+      message: "Are you sure to delete the delivery price?",
+      confirmData: { id: id },
+    });
+  };
+
+  hideConfirmPopup = () => {
+    this.setState({ showConfirm: false });
+  };
+
+  confirmDeleteType = () => {
+    axios.delete(
+      process.env.REACT_APP_PRICES_URL + "/" + this.state.confirmData.id,
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      }
+    );
+    window.location.reload();
+  };
+
   render() {
     if (this.state.isLoading) {
       return <div>Loading....</div>;
@@ -185,7 +216,9 @@ class DepotPage extends Component {
                 >
                   Edit
                 </button>
-                <button>Delete</button>
+                <button onClick={() => this.deletePrice(record.id)}>
+                  Delete
+                </button>
               </td>
             </tr>
           );
@@ -291,6 +324,13 @@ class DepotPage extends Component {
           handleClose={this.hideModal}
           message={this.state.message}
         ></Popup>
+
+        <ComfirmPopup
+          show={this.state.showConfirm}
+          handleDelete={this.confirmDeleteType}
+          handleClose={this.hideConfirmPopup}
+          message={this.state.message}
+        ></ComfirmPopup>
       </div>
     );
   }
