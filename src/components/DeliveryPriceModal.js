@@ -5,27 +5,26 @@ import Col from "react-bootstrap/Col";
 import axios from "axios";
 import React, { Component } from "react";
 import Popup from "./Popup";
-
+import Dropdown from "react-bootstrap/Dropdown";
 import styles from "./PostCodeModal.module.css";
 
-//take up 4 parameters:
-//showup:is showup
-//hideup: is hide
-//data
-//isEdit: if the operation is editing or add new postcode
-class PostCodeModal extends Component {
+class DeliveryPriceModal extends Component {
   state = {
-    postcode_prefix: null,
+    price_per_mile: null,
     min_price: null,
     delivery_type_id: null,
+
     showPopup: false,
     message: null,
-    id: null, //postcode id
+    price_id: null, //price id
     errors: {
-      postcode_prefix: null,
+      price_per_mile: null,
       min_price: null,
+      delivery_type_id: null,
     },
-    isEdit: false,
+    depot_id: null,
+    isEdit: null,
+    dTypeList: [],
   };
 
   hidePopup = () => {
@@ -40,27 +39,39 @@ class PostCodeModal extends Component {
     let value = event.target.value;
     let name = event.target.id;
 
-    if (name === "postcode_prefix")
-      this.setState({
-        postcode_prefix: value,
-        min_price: this.state.min_price,
-      });
-    if (name === "min_price")
-      this.setState({
-        postcode_prefix: this.state.postcode_prefix,
-        min_price: value,
-      });
+    this.setState({
+      [name]: value,
+    });
   };
 
+  componentDidMount() {
+    //get type list
+    axios
+      .get(process.env.REACT_APP_DELIVERYTYPE_LIST_URL, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      })
+      .then((res) => {
+        this.setState({
+          dTypeList: res.data,
+        });
+      });
+  }
+
   componentWillReceiveProps(nextProps) {
-    // update state from props.
     this.setState({
-      id: nextProps.data.id,
-      postcode_prefix: nextProps.data.postcode_prefix,
-      min_price: nextProps.data.min_price,
-      delivery_type_id: nextProps.data.delivery_type_id,
+      depot_id: nextProps.editData.depot_id,
+      price_per_mile: nextProps.editData.price_per_mile,
+      min_price: nextProps.editData.min_price,
+      delivery_type_id: nextProps.editData.delivery_type_id,
+
       isEdit: nextProps.isEdit,
+      price_id: nextProps.editData.price_id,
     });
+
+    //console.log(nextProps);
   }
 
   AddNewPopup = () => {
@@ -69,8 +80,8 @@ class PostCodeModal extends Component {
 
     var regex = /(0|([1-9]\d*))\.\d{2}$/;
 
-    if (!this.state.postcode_prefix || this.state.postcode_prefix === "") {
-      errors.postcode_prefix = "Postcode prefix is required!";
+    if (!this.state.price_per_mile || this.state.price_per_mile === "") {
+      errors.price_per_mile = "Price per mile is required!";
       isError = true;
     }
 
@@ -82,21 +93,27 @@ class PostCodeModal extends Component {
       isError = true;
     }
 
+    if (!this.state.delivery_type_id) {
+      errors.delivery_type_id = "One type is required to be selected!";
+      isError = true;
+    }
+
     this.setState({ errors: errors });
 
     if (!isError) {
       const params = {
-        postcode_prefix: this.state.postcode_prefix,
+        price_per_mile: this.state.price_per_mile,
         min_price: this.state.min_price,
         delivery_type_id: this.state.delivery_type_id,
+        depot_id: this.state.depot_id,
       };
 
       axios
         .post(
           //Change URL if in editing mode
           this.state.isEdit
-            ? process.env.REACT_APP_POSTCODE_ADD_URL + "/" + this.state.id
-            : process.env.REACT_APP_POSTCODE_ADD_URL,
+            ? process.env.REACT_APP_PRICES_URL + "/" + this.state.price_id
+            : process.env.REACT_APP_PRICES_URL,
           params,
           {
             headers: {
@@ -106,6 +123,7 @@ class PostCodeModal extends Component {
           }
         )
         .then((res) => {
+          console.log(this.state);
           this.setState({
             showPopup: true,
             message: this.state.isEdit ? "Edit Success" : "Add Sucess!",
@@ -117,13 +135,36 @@ class PostCodeModal extends Component {
             message: this.state.isEdit ? "Edit Failed" : "Add Failed!",
           });
         });
-      this.setState({ postcode_prefix: null, min_price: null }, () => {
-        this.props.hideup();
-      });
+      this.setState(
+        { price_per_mile: null, min_price: null, delivery_type_id: null },
+        () => {
+          this.props.hideup();
+        }
+      );
     }
   };
 
+  setDropdownType = (eventKey, event) => {
+    this.setState({
+      delivery_type_id: eventKey,
+    });
+  };
+
   render() {
+    const typeDropdown = !this.state.dTypeList
+      ? null
+      : this.state.dTypeList.map((item) => {
+          return (
+            <Dropdown.Item
+              eventKey={item.id}
+              onSelect={this.setDropdownType}
+              active={item.id === this.state.delivery_type_id ? true : false}
+            >
+              {item.name}
+            </Dropdown.Item>
+          );
+        });
+
     return (
       <div>
         <Modal
@@ -133,58 +174,46 @@ class PostCodeModal extends Component {
         >
           <Modal.Header closeButton>
             <Modal.Title>
-              {this.state.isEdit ? "Edit PostCode" : "Add New PostCode"}
+              {this.state.isEdit
+                ? "Edit Delivery Price"
+                : "Add New Delivery Price"}
             </Modal.Title>
           </Modal.Header>
 
           <Modal.Body className={styles.modalBody}>
             <Form>
               <Form.Row>
-                <Form.Group as={Col} controlId="postcode_prefix">
+                <Form.Group as={Col} controlId="price_per_mile">
                   <Form.Label>
-                    Postcode Prefix:
+                    Price Per Mile:
                     {this.state.isEdit ? null : (
                       <span className={styles.formRed}>(required)</span>
                     )}
                   </Form.Label>
                   <Form.Control
                     type="text"
-                    value={
-                      !this.state.postcode_prefix
-                        ? !this.props.data.postcode_prefix
-                          ? null
-                          : this.props.data.postcode_prefix
-                        : this.state.postcode_prefix
-                    }
+                    value={this.state.price_per_mile}
                     onChange={this.inputChange}
                     className={
-                      this.state.errors.postcode_prefix
-                        ? styles.formError
-                        : null
+                      this.state.errors.price_per_mile ? styles.formError : null
                     }
                   />
                   <div className={styles.error}>
-                    {this.state.errors.postcode_prefix}
+                    {this.state.errors.price_per_mile}
                   </div>
                 </Form.Group>
               </Form.Row>
               <Form.Row>
                 <Form.Group as={Col} controlId="min_price">
                   <Form.Label>
-                    Minimum Price:{" "}
+                    Minimum Price:
                     {this.state.isEdit ? null : (
                       <span className={styles.formRed}>(required)</span>
                     )}
                   </Form.Label>
                   <Form.Control
                     type="text"
-                    value={
-                      this.state.min_price
-                        ? this.state.min_price
-                        : !this.props.data.min_price
-                        ? null
-                        : this.props.data.min_price
-                    }
+                    value={this.state.min_price}
                     onChange={this.inputChange}
                     className={
                       this.state.errors.min_price ? styles.formError : null
@@ -192,6 +221,21 @@ class PostCodeModal extends Component {
                   />
                   <div className={styles.error}>
                     {this.state.errors.min_price}
+                  </div>
+                </Form.Group>
+              </Form.Row>
+              <Form.Row>
+                <Form.Group as={Col} controlId="delivery_type_id">
+                  <Form.Label>
+                    Delivery Type:
+                    {!this.state.isEdit ? (
+                      <span className={styles.formRed}>(required)</span>
+                    ) : null}
+                  </Form.Label>
+
+                  <Dropdown>{typeDropdown}</Dropdown>
+                  <div className={styles.error}>
+                    {this.state.errors.delivery_type_id}
                   </div>
                 </Form.Group>
               </Form.Row>
@@ -223,4 +267,4 @@ class PostCodeModal extends Component {
   }
 }
 
-export default PostCodeModal;
+export default DeliveryPriceModal;
