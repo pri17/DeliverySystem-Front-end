@@ -197,11 +197,10 @@ class ProductPage extends Component {
                   onClick={() =>
                     this.openEdit(record.delivery_type_id, record.id)
                   }
+                  className={styles.op_btn}
                 >
                   Edit
                 </button>
-              </td>
-              <td>
                 <button onClick={() => this.deleteBlackList(record.id)}>
                   Delete
                 </button>
@@ -281,13 +280,14 @@ class ProductPage extends Component {
           </div>
 
           {!this.state.delivery_blacklist ? null : (
-            <table>
+            <table class="table table-bordered">
               <thead>
                 <tr>
                   <th>Blacklist ID</th>
                   <th>Delivery Type Name</th>
                   <th>Created At </th>
                   <th>Updated At </th>
+                  <th>Operations</th>
                 </tr>
               </thead>
               <tbody>{blistBody}</tbody>

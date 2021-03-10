@@ -2,7 +2,7 @@ import React, { Component, useState } from "react";
 import axios from "axios";
 import Popup from "../components/Popup";
 import ComfirmPopup from "../components/ComfirmPopup";
-import styles from "./DTypePage.module.css";
+import styles from "./ProductPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -123,7 +123,7 @@ class DTypePage extends Component {
         },
       }
     );
-    this.props.history.push("/deliveryTypes"); //back to type list
+    window.location.replace("/deliveryTypes"); //back to type list
   };
 
   hideConfirmPopup = () => {
@@ -205,9 +205,13 @@ class DTypePage extends Component {
               <td>{record.created_at}</td>
               <td>{record.updated_at}</td>
               <td>
-                <button onClick={() => this.openEdit(record)}>Edit</button>
-              </td>
-              <td>
+                <button
+                  onClick={() => this.openEdit(record)}
+                  className={styles.op_btn}
+                >
+                  Edit
+                </button>
+
                 <button onClick={() => this.deletePostcode(record.id)}>
                   Delete
                 </button>
@@ -287,7 +291,7 @@ class DTypePage extends Component {
           </div>
 
           {!this.state.postcode_list ? null : (
-            <table>
+            <table class="table table-bordered">
               <thead>
                 <tr>
                   <th>Postcode ID</th>
@@ -295,6 +299,7 @@ class DTypePage extends Component {
                   <th>Min Price</th>
                   <th>Created At </th>
                   <th>Updated At </th>
+                  <th>Operations</th>
                 </tr>
               </thead>
               <tbody>{postCodeBody}</tbody>
