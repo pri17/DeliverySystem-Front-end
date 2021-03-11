@@ -67,7 +67,7 @@ class PostCodeModal extends Component {
     let errors = this.state.errors;
     let isError = false;
 
-    var regex = /(0|([1-9]\d*))\.\d{2}$/;
+    var regex = /([1-9]\d*\.?\d*)|(0\.\d*[1-9])/;
 
     if (!this.state.postcode_prefix || this.state.postcode_prefix === "") {
       errors.postcode_prefix = "Postcode prefix is required!";
@@ -78,7 +78,7 @@ class PostCodeModal extends Component {
       errors.min_price = "Minimun price is required!";
       isError = true;
     } else if (!this.state.min_price.toString().match(regex)) {
-      errors.min_price = "Please input numbers with two decimal";
+      errors.min_price = "Please input numbers";
       isError = true;
     }
 
