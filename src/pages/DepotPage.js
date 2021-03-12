@@ -59,20 +59,7 @@ class DepotPage extends Component {
           lng: res.data.lng,
           id: res.data.id,
           isLoading: false,
-        });
-      });
-
-    //get all delivery prices list
-    axios
-      .get(process.env.REACT_APP_PRICES_URL, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json;charset=utf-8",
-        },
-      })
-      .then((res) => {
-        this.setState({
-          d_priceList: res.data,
+          d_priceList: res.data.deliveryPrices,
         });
       });
 
